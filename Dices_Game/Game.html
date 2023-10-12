@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎页面</title>
+    <style>
+        p {
+            font-weight: bold;
+            text-indent: 2em;
+            font-size: 30px;
+            color: #ffffff;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 120px;
+            font-family: '方正舒体';
+            /* color: rgb(226, 116, 193); */
+            /* text-shadow: 10px 10px 5px #000000; */
+            background: linear-gradient(to bottom, #f06, #9f6);
+            /* 使用文字渐变颜色 */
+            -webkit-background-clip: text;
+            /* 兼容性样式，将渐变应用到文字上 */
+            color: transparent;
+            /* 隐藏文字颜色，以显示渐变背景 */
+        }
+
+        body {
+            background-image: url('./图片素材/显示屏背景2.webp');
+            background-position: center;
+            background-size: cover;
+        }
+
+        img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .container {
+            display: inline-block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>欢迎来到 投骰时到</h1>
+    <div class="container">
+        <a href="./page_1/home_page.html">
+            <img src="./图片素材/小骰子背景.webp" alt="进入游戏" title="点击进入游戏">
+        </a>
+    </div>
+    <p></p>
+
+</body>
+
+</html>

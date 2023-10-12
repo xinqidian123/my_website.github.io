@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地对战</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <div class="button">
+        <img src="../图片素材/musicSign2.png" id="music" alt="音乐图标" title="关闭音乐">
+        <!-- <img src="../图片素材/退出.png" id="exit" alt="退出图标" title="退出游戏"> -->
+    </div>
+    <div id="fight">
+        <div class="PlayField" id="Player1">
+            <div class="Pconfirm" id="lockArea">
+            </div>
+            <div class="tField" id="throwArea">
+
+            </div>
+        </div>
+
+        <div id="disp">
+
+            <div id="scoreArea">
+                <div class="score">
+                    ￥：<span id="P1Money"> 1000</span><br>
+                    P1得分:<span id="P1score">0</span>
+                </div>
+                <div>
+                    当前倍率:<span id="multiple">1</span>
+                </div>
+                <div class="score">
+                    P2得分:<span id="P2score">0</span><br>
+                    ￥：<span id="P2Money"> 1000</span>
+                </div>
+            </div>
+            <div id="screen">
+                <div class="chooseArea" id="P1Mul">
+                    <button class="multi1" id="Fmul0">0</button>
+                    <button class="multi1" id="Fmul1">1</button>
+                    <button class="multi1" id="Fmul2">2</button>
+                    <button class="multi1" id="Fmul3">3</button>
+                </div>
+                <div><button id="startButton">开始投掷</button>
+                </div>
+                <div class="chooseArea" id="P2Mul">
+                    <button class="multi2" id="Smul0">0</button>
+                    <button class="multi2" id="Smul1">1</button>
+                    <button class="multi2" id="Smul2">2</button>
+                    <button class="multi2" id="Smul3">3</button>
+                </div>
+            </div>
+
+            <div class="Round">
+                第
+                <span id="cPlay">1</span>
+                局
+            </div>
+
+            <div class="Round">
+                第
+                <span id="cRound">1</span>
+                轮
+            </div>
+        </div>
+
+
+        <div class="PlayField" id="Player2">
+            <div class="tField" id="throwArea2">
+                投掷区
+            </div>
+
+            <div class="Pconfirm" id="lockArea2">
+                选定区
+            </div>
+
+        </div>
+    </div>
+    <a href="./home_page.html">
+        <img src="../图片素材/返回.png" alt="回到主页" title="返回" style="height: 100px;" class="btnToHome">
+    </a>
+    <script src="./pvp.js"> </script>
+
+</body>
+
+</html>
