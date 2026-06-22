@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowAux Mini Benchmark 数据看板</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --card: #ffffff;
+      --ink: #0b1f33;
+      --muted: #6a7f93;
+      --line: #e5edf5;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --green: #16803c;
+      --green-soft: #eaf7ee;
+      --red: #cf222e;
+      --red-soft: #fdecef;
+      --orange: #f97316;
+      --orange-soft: #fff3e6;
+      --purple: #7c3aed;
+      --purple-soft: #f1eafe;
+      --gold: #b7791f;
+      --gold-soft: #fff8db;
+      --shadow: 0 10px 24px rgba(19, 41, 75, 0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.55;
+    }
+    .page { max-width: 1280px; margin: 0 auto; padding: 28px 16px 42px; }
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f6fbff 55%, #f4f0ff 100%);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+    h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: .2px; }
+    h2 { margin: 0; font-size: 23px; }
+    h3 { margin: 0 0 10px; font-size: 18px; }
+    .subtitle { color: var(--muted); margin: 0; font-size: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+    }
+    .card-body { padding: 18px 22px; }
+    .span-12 { grid-column: span 12; }
+    .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
+    .span-8 { grid-column: span 8; }
+    @media (max-width: 900px) { .span-6, .span-4, .span-8 { grid-column: span 12; } }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 15px 16px;
+    }
+    .kpi .label { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+    .kpi .value { font-size: 24px; font-weight: 800; }
+    .kpi .note { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { background: #f6f9fc; color: #17324a; font-weight: 800; }
+    tr.highlight { background: #fff7ef; }
+    tr.leader { background: #f2fbf5; }
+    tr.warn { background: #fff7f7; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .strong { font-weight: 800; }
+    .muted { color: var(--muted); }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 750;
+      white-space: nowrap;
+    }
+    .b-blue { color: var(--blue); background: var(--blue-soft); }
+    .b-green { color: var(--green); background: var(--green-soft); }
+    .b-red { color: var(--red); background: var(--red-soft); }
+    .b-orange { color: var(--orange); background: var(--orange-soft); }
+    .b-purple { color: var(--purple); background: var(--purple-soft); }
+    .b-gold { color: var(--gold); background: var(--gold-soft); }
+    .delta-pos { color: var(--green); background: var(--green-soft); }
+    .delta-neg { color: var(--red); background: var(--red-soft); }
+    .bar-wrap { height: 10px; background: #edf2f7; border-radius: 999px; overflow: hidden; min-width: 92px; }
+    .bar { height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); border-radius: 999px; }
+    .bar.orange { background: linear-gradient(90deg, #fdba74, #f97316); }
+    .bar.green { background: linear-gradient(90deg, #86efac, #16a34a); }
+    .bar.red { background: linear-gradient(90deg, #fca5a5, #dc2626); }
+    .note-box {
+      border-left: 4px solid var(--blue);
+      background: #f7fbff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: #24415e;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .list { margin: 0; padding-left: 20px; }
+    .list li { margin: 7px 0; }
+    .footer { color: var(--muted); font-size: 12px; margin-top: 18px; }
+    code { background: #f2f5f8; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>FlowAux 光流残差路线数据看板</h1>
+      <p class="subtitle">6 月 17 日至 6 月 22 日阶段性整理 · 重点关注 FlowAux vs no-flow、seed 依赖、enc/dec 宽度、keep ratio、residual mode 与 cover/secret 平衡。</p>
+      <div class="kpis">
+        <div class="kpi"><div class="label">旧 FlowAux mini leader</div><div class="value">44.1964</div><div class="note">0172 · FlowAux seed1 enc16/dec18 keep0.70</div></div>
+        <div class="kpi"><div class="label">当前健康 mini/wider 锚点</div><div class="value">43.6613</div><div class="note">0227 · gt_chain + corrected current_psnr</div></div>
+        <div class="kpi"><div class="label">Full-scale 强锚点</div><div class="value">49.3214</div><div class="note">0167 · full training PSNR_avg</div></div>
+        <div class="kpi"><div class="label">主推方向</div><div class="value">gt_chain</div><div class="note">当前比 selected_chain 更稳定</div></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card span-12">
+        <div class="card-header"><h2>1. FlowAux 相比 no-flow：有效，但 seed 依赖明显</h2><span class="badge b-blue">paired seed</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>Seed</th><th>no-flow 对照</th><th>FlowAux 对照</th><th class="num">no-flow PSNR_avg</th><th class="num">FlowAux PSNR_avg</th><th class="num">提升</th><th>结论</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>seed2</td><td>0173</td><td>0174</td><td class="num">43.1721</td><td class="num strong">43.3457</td><td class="num"><span class="badge delta-pos">+0.1736 dB</span></td><td>正收益较小</td>
+              </tr>
+              <tr class="leader">
+                <td>seed3</td><td>0175</td><td>0176</td><td class="num">42.5451</td><td class="num strong">43.8069</td><td class="num"><span class="badge delta-pos">+1.2618 dB</span></td><td>正收益明显</td>
+              </tr>
+              <tr>
+                <td>seed1</td><td class="muted">无严格同协议 no-flow paired</td><td>0172</td><td class="num muted">—</td><td class="num strong">44.1964</td><td class="num muted">—</td><td>0172 是旧 FlowAux mini leader，但不用于 paired 差值</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="note-box">结论：FlowAux 方向成立，但不能只看单 seed。seed2 增益较小，seed3 增益明显，后续必须做 seed 稳定性和 full-data 验证。</div>
+        </div>
+      </div>
+
+      <div class="card span-6">
+        <div class="card-header"><h2>2. enc/dec 宽度：enc16/dec20 值得关注</h2><span class="badge b-purple">width</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>编号</th><th>配置</th><th class="num">mini_best</th><th>相对判断</th></tr></thead>
+            <tbody>
+              <tr><td>0176</td><td>enc16/dec18 · seed3</td><td class="num">43.8069</td><td>基础对照</td></tr>
+              <tr class="leader"><td>0179</td><td>enc16/dec20 · seed3</td><td class="num strong">44.1007</td><td><span class="badge delta-pos">+0.2938</span></td></tr>
+              <tr><td>0180</td><td>enc18/dec18 · seed3</td><td class="num">43.9233</td><td>略高于 16/18</td></tr>
+              <tr class="warn"><td>0177</td><td>enc14/dec18 · seed3</td><td class="num">43.2065</td><td>偏弱</td></tr>
+              <tr class="warn"><td>0178</td><td>enc14/dec20 · seed3</td><td class="num">40.3364</td><td>明显偏弱</td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">decoder 适当加宽可能有利于恢复光流补偿 residual。后续 mini 中 0230/0231 也显示 enc16/dec18 与 enc16/dec20 接近，dec20 略优且 secret 更高。</div>
+        </div>
+      </div>
+
+      <div class="card span-6">
+        <div class="card-header"><h2>3. keep ratio：0.70 / 0.75 更稳</h2><span class="badge b-orange">top-k</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>编号</th><th>keep ratio</th><th class="num">mini_best</th><th>趋势</th></tr></thead>
+            <tbody>
+              <tr><td>0176</td><td>0.70</td><td class="num strong">43.8069</td><td><div class="bar-wrap"><div class="bar green" style="width:96%"></div></div></td></tr>
+              <tr class="leader"><td>0183</td><td>0.75</td><td class="num strong">43.9105</td><td><div class="bar-wrap"><div class="bar green" style="width:98%"></div></div></td></tr>
+              <tr class="warn"><td>0184</td><td>0.80</td><td class="num">42.0076</td><td><div class="bar-wrap"><div class="bar orange" style="width:65%"></div></div></td></tr>
+              <tr class="warn"><td>0185</td><td>0.85</td><td class="num">41.7628</td><td><div class="bar-wrap"><div class="bar orange" style="width:58%"></div></div></td></tr>
+              <tr class="warn"><td>0186</td><td>0.90</td><td class="num">41.6989</td><td><div class="bar-wrap"><div class="bar orange" style="width:56%"></div></div></td></tr>
+              <tr class="warn"><td>0189</td><td>0.975</td><td class="num">41.3208</td><td><div class="bar-wrap"><div class="bar red" style="width:45%"></div></div></td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">结论：残差保留不是越多越好。0.70 和 0.75 相对更稳，0.80 以上负载变重，更容易 early-fail 或走低。</div>
+        </div>
+      </div>
+
+      <div class="card span-8">
+        <div class="card-header"><h2>4. residual mode：pred_chain 淘汰，selected_chain 理论可行但训练优势不稳定</h2><span class="badge b-gold">oracle + training</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>mode</th><th>用途</th><th class="num">oracle PSNR_avg</th><th class="num">R4_energy</th><th>判断</th></tr></thead>
+            <tbody>
+              <tr class="leader"><td><code>gt_chain</code></td><td>当前默认主线</td><td class="num strong">81.3677</td><td class="num">0.00083149</td><td><span class="badge b-green">保留主线</span></td></tr>
+              <tr><td><code>selected_chain</code></td><td>编码端用预测帧 + top-k residual 作下一步 anchor</td><td class="num">81.0085</td><td class="num">0.00083160</td><td><span class="badge b-orange">备选</span></td></tr>
+              <tr class="warn"><td><code>pred_chain</code></td><td>后续预测只用纯预测帧</td><td class="num">76.4548</td><td class="num strong">0.00279726</td><td><span class="badge b-red">淘汰</span></td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">selected_chain 的 oracle 上限接近 gt_chain，但在 0226/0227 修正后训练对照中，gt_chain 更稳。因此当前主线仍为 gt_chain，selected_chain 作为后续备选。</div>
+        </div>
+      </div>
+
+      <div class="card span-4">
+        <div class="card-header"><h2>5. base 路径</h2><span class="badge b-red">risk</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>编号</th><th>mode</th><th class="num">mini_best</th></tr></thead>
+            <tbody>
+              <tr><td>0176</td><td>chain</td><td class="num strong">43.8069</td></tr>
+              <tr class="warn"><td>0182</td><td>base</td><td class="num">37.3869</td></tr>
+              <tr><td>0195</td><td>trim base</td><td class="num">41.3704</td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">旧流程中 base 明显不稳；trim 流程下 base 没有严重崩坏，但 trim 和旧流程不能直接混排。当前仍以 chain 为主。</div>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <div class="card-header"><h2>6. 不能只看 PSNR_avg：cover / secret 平衡对照</h2><span class="badge b-green">cover-secret</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>编号</th><th>配置摘要</th><th class="num">PSNR_cover</th><th class="num">PSNR_secret</th><th class="num">PSNR_avg</th><th>解释</th></tr></thead>
+            <tbody>
+              <tr><td>0227</td><td>gt_chain + corrected current_psnr</td><td class="num">46.1281</td><td class="num strong">42.8391</td><td class="num">43.6613</td><td>mini/wider 中更健康：cover 达标且 secret 较高</td></tr>
+              <tr><td>0172</td><td>同类配置，固定 ccl_w=1/3</td><td class="num strong">49.1923</td><td class="num">42.0798</td><td class="num strong">43.8579</td><td>avg 略高，但主要由 cover=49.19 拉高</td></tr>
+              <tr><td>0226</td><td>selected_chain + corrected current_psnr</td><td class="num">45.7604</td><td class="num">42.7837</td><td class="num">43.5279</td><td>selected_chain 未超过 gt_chain</td></tr>
+              <tr class="leader"><td>0167</td><td>full training 强锚点</td><td class="num strong">55.5765</td><td class="num strong">47.2364</td><td class="num strong">49.3214</td><td>完整数据集结果，不能和 mini/wider 直接混排</td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">高分结果必须同时看 PSNR_cover、PSNR_secret、每张 secret 的 PSNR 和 cover-secret gap。若 avg 主要来自 cover 拉高、secret 下降，不能直接视为主线突破。</div>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <div class="card-header"><h2>7. seed 与宽度小扫：mini 阶段收益接近收敛</h2><span class="badge b-blue">0230–0233</span></div>
+        <div class="card-body">
+          <table>
+            <thead><tr><th>编号</th><th>配置</th><th class="num">PSNR_cover</th><th class="num">PSNR_secret</th><th class="num">PSNR_avg</th><th>备注</th></tr></thead>
+            <tbody>
+              <tr><td>0230</td><td>seed1 · enc16/dec18</td><td class="num">46.2459</td><td class="num">42.7243</td><td class="num">43.6047</td><td>与 0231 几乎并列</td></tr>
+              <tr class="leader"><td>0231</td><td>seed1 · enc16/dec20</td><td class="num">46.0484</td><td class="num strong">42.7906</td><td class="num strong">43.6050</td><td>略优，secret 更高</td></tr>
+              <tr><td>0232</td><td>seed2 · enc16/dec20</td><td class="num">45.9173</td><td class="num">42.7603</td><td class="num">43.5496</td><td>接近 0231</td></tr>
+              <tr><td>0233</td><td>seed3 · enc16/dec18</td><td class="num">45.9736</td><td class="num">42.6891</td><td class="num">43.5102</td><td>略低</td></tr>
+            </tbody>
+          </table>
+          <div class="note-box">0230/0231/0232/0233 的差距很小，继续 mini 上细扫收益有限。下一步应进入 full-data 长实验。</div>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <div class="card-header"><h2>8. 当前结论与下一步</h2><span class="badge b-orange">action</span></div>
+        <div class="card-body">
+          <ol class="list">
+            <li><b>FlowAux 有效但存在 seed 依赖</b>：后续不能用单 seed 直接下结论。</li>
+            <li><b>enc16/dec20 值得保留</b>：旧流程和后续小扫均显示 decoder 适当加宽有潜力。</li>
+            <li><b>keep ratio 重点区间为 0.70–0.75</b>：0.80 以上不稳定，暂不作为主线。</li>
+            <li><b>chain 是当前主线</b>：base 旧流程不稳定；pred_chain oracle 已淘汰；selected_chain 暂作备选。</li>
+            <li><b>评价必须拆分 cover 与 secret</b>：避免 PSNR_avg 被过高 cover 虚高拉起。</li>
+            <li><b>进入 full-data 长训</b>：优先验证 0231、0230 以及固定 ccl_w 对照。</li>
+          </ol>
+          <div class="note-box">推荐 full-data 长实验：L01=0231 配置（gt_chain, enc16/dec20, seed1, dynamic current_psnr）；L02=0230 配置（gt_chain, enc16/dec18, seed1）；L03=0231 配置 + fixed ccl_w=1/3。</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">注：旧 FlowAux controlled mini、trim 流程、mini/wider validation 与 full training 属于不同协议或数据规模，不能直接混排绝对值；本看板用于组会说明阶段趋势和实验决策。</p>
+  </main>
+</body>
+</html>
